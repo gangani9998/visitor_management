@@ -138,34 +138,21 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Visitor Log": {
+		"validate": "visitor_management.visitor_management.visitor_log_controller.validate",
+		"on_update": "visitor_management.visitor_management.visitor_log_controller.on_update"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"visitor_management.tasks.all"
-# 	],
-# 	"daily": [
-# 		"visitor_management.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"visitor_management.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"visitor_management.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"visitor_management.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"hourly": [
+		"visitor_management.visitor_management.tasks.expire_visitor_passes"
+	]
+}
 
 # Testing
 # -------

@@ -1,0 +1,505 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<style>
+    header, footer, .web-footer, .navbar { display: none !important; }
+
+    * { box-sizing: border-box; }
+
+    body {
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+
+    .scanner-wrap {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 20px 16px 40px;
+    }
+
+    .scanner-header {
+        text-align: center;
+        padding: 20px 0 10px;
+    }
+    .scanner-header h2 {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin: 0;
+        color: #f0c040;
+        text-transform: uppercase;
+    }
+    .scanner-header p {
+        font-size: 13px;
+        opacity: 0.7;
+        margin: 4px 0 0;
+    }
+
+    /* Camera box */
+    #reader {
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 3px solid #f0c040;
+        background: #000;
+        margin: 16px 0;
+    }
+
+    /* Manual entry */
+    .manual-box {
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+    }
+    .manual-box label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.6;
+        display: block;
+        margin-bottom: 6px;
+    }
+    .manual-row {
+        display: flex;
+        gap: 8px;
+    }
+    .manual-row input {
+        flex: 1;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        outline: none;
+    }
+    .manual-row input::placeholder { opacity: 0.4; letter-spacing: 2px; font-size: 14px; }
+    .manual-row input:focus { border-color: #f0c040; }
+    .btn-search {
+        background: #f0c040;
+        color: #1a1a2e;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-search:hover { background: #e0b030; }
+
+    /* Result card */
+    #result-card {
+        display: none;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 16px;
+        padding: 18px;
+        margin-top: 12px;
+        animation: slideUp 0.35s ease-out forwards;
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .visitor-name {
+        font-size: 22px;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 12px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .info-item { }
+    .info-item .lbl { font-size: 10px; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; }
+    .info-item .val { font-size: 14px; font-weight: 600; color: #eee; margin-top: 2px; }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+    .status-expected  { background: rgba(240,192,64,0.2);  color: #f0c040; border: 1px solid #f0c040; }
+    .status-checkedin { background: rgba(72,199,142,0.2);  color: #48c78e; border: 1px solid #48c78e; }
+    .status-checkedout{ background: rgba(255,100,100,0.2); color: #ff6464; border: 1px solid #ff6464; }
+    .status-expired   { background: rgba(180,180,180,0.2); color: #aaa;    border: 1px solid #888; }
+
+    .ts-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .ts-box {
+        flex: 1;
+        background: rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 10px 12px;
+    }
+    .ts-box .lbl { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+    .ts-box .val { font-size: 13px; font-weight: 600; margin-top: 3px; }
+
+    .action-btns { display: flex; gap: 10px; }
+    .btn-checkin {
+        flex: 1;
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .btn-checkout {
+        flex: 1;
+        background: linear-gradient(135deg, #f7971e, #ffd200);
+        color: #1a1a1a;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .btn-checkin:hover, .btn-checkout:hover { opacity: 0.88; }
+    .btn-checkin:disabled, .btn-checkout:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .toast {
+        display: none;
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #23d160;
+        color: #fff;
+        padding: 14px 24px;
+        border-radius: 40px;
+        font-size: 14px;
+        font-weight: 700;
+        z-index: 9999;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        animation: fadeIn 0.3s;
+    }
+    .toast.error { background: #ff4757; }
+    @keyframes fadeIn { from { opacity:0; transform: translate(-50%, 10px); } to { opacity:1; transform: translate(-50%, 0); } }
+
+    #scan-again-btn {
+        display: none;
+        width: 100%;
+        margin-top: 12px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+    }
+    #scan-again-btn:hover { background: rgba(255,255,255,0.14); }
+</style>
+
+<div class="scanner-wrap">
+    <div class="scanner-header">
+        <h2>Security Gate Scanner</h2>
+        <p>Scan visitor QR Code or enter Pass Code manually</p>
+    </div>
+
+    <!-- Camera QR Reader -->
+    <div id="reader"></div>
+
+    <!-- Manual Entry -->
+    <div class="manual-box">
+        <label>Enter Pass Code Manually</label>
+        <div class="manual-row">
+            <input type="text" id="manual-code" maxlength="10" placeholder="e.g. TKYJOJ" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+            <button class="btn-search" onclick="lookupPass(document.getElementById('manual-code').value)">Search</button>
+        </div>
+    </div>
+
+    <!-- Result Card -->
+    <div id="result-card">
+        <div class="visitor-name" id="res-name"></div>
+        <div id="res-badge" class="status-badge"></div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="lbl">Visiting</div>
+                <div class="val" id="res-meeting"></div>
+            </div>
+            <div class="info-item">
+                <div class="lbl">Purpose</div>
+                <div class="val" id="res-purpose"></div>
+            </div>
+            <div class="info-item">
+                <div class="lbl">Total Persons</div>
+                <div class="val" id="res-persons" style="color: #f0c040; font-size: 18px;"></div>
+            </div>
+            <div class="info-item">
+                <div class="lbl">Pass Code</div>
+                <div class="val" id="res-passcode"></div>
+            </div>
+        </div>
+
+        <div class="ts-row">
+            <div class="ts-box">
+                <div class="lbl">Check-In Time</div>
+                <div class="val" id="res-cin">—</div>
+            </div>
+            <div class="ts-box">
+                <div class="lbl">Check-Out Time</div>
+                <div class="val" id="res-cout">—</div>
+            </div>
+        </div>
+
+        <div id="vehicle-entry-box" style="display: none; background: rgba(255,255,255,0.06); padding: 15px; border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.1);">
+            <h4 style="font-size: 13px; color: #f0c040; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">Vehicle Details (Required)</h4>
+            <label style="font-size: 11px; opacity: 0.7; display: block; margin-bottom: 4px;">Vehicle Number</label>
+            <input type="text" id="veh-num" placeholder="e.g. MH 01 AB 1234" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); padding: 10px; color: white; border-radius: 8px; margin-bottom: 12px; font-size: 16px; text-transform: uppercase;">
+            
+            <label style="font-size: 11px; opacity: 0.7; display: block; margin-bottom: 4px;">OR Capture Photo</label>
+            <input type="file" id="veh-photo" accept="image/*" capture="environment" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.3); padding: 10px; color: white; border-radius: 8px; font-size: 14px;">
+            <div id="upload-status" style="font-size: 11px; color: #38ef7d; margin-top: 4px; display: none;">Uploading photo...</div>
+        </div>
+
+        <div id="expired-warning" style="display: none; background: rgba(255,71,87,0.1); border: 1px solid #ff4757; color: #ff4757; padding: 15px; border-radius: 12px; margin-bottom: 16px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+            This pass has expired. Entry denied.
+        </div>
+
+        <div class="action-btns">
+            <button class="btn-checkin"  id="btn-in"  onclick="doAction('checkin')">Check In</button>
+            <button class="btn-checkout" id="btn-out" onclick="doAction('checkout')">Check Out</button>
+        </div>
+    </div>
+
+    <div id="scan-again-btn" onclick="resetScanner()">Scan Another</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+let currentPassCode = null;
+let scanner = null;
+
+function startScanner() {
+    scanner = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 };
+
+    scanner.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+            // QR contains just the pass_code
+            if (decodedText && decodedText !== currentPassCode) {
+                scanner.pause(true);
+                lookupPass(decodedText.trim().toUpperCase());
+            }
+        },
+        (err) => { /* scan errors are normal, ignore */ }
+    ).catch((err) => {
+        document.getElementById("reader").innerHTML = '<p style="padding:20px;color:#aaa;text-align:center;font-size:13px;">Camera not available. Use manual entry below.</p>';
+    });
+}
+
+function lookupPass(code) {
+    if (!code || code.length < 4) { showToast("Please enter a valid pass code.", true); return; }
+
+    currentPassCode = code.toUpperCase();
+
+    frappe.call({
+        method: "visitor_management.visitor_management.api.gate_scan.scan_pass",
+        args: { pass_code: currentPassCode },
+        callback: function(r) {
+            if (r.exc) { showToast("System Error", true); return; }
+            if (r.message && r.message.error) {
+                showToast(r.message.error, true);
+                if (scanner) { try { scanner.resume(); } catch(e) {} }
+                return;
+            }
+            renderResult(r.message);
+        },
+        error: function(err) {
+            showToast("Failed to look up pass. Check connection.", true);
+        }
+    });
+}
+
+function renderResult(data) {
+    const card = document.getElementById("result-card");
+    card.style.display = "block";
+    document.getElementById("scan-again-btn").style.display = "block";
+    
+    // Hide camera and manual entry to clean up UI
+    document.getElementById("reader").style.display = "none";
+    document.querySelector(".manual-box").style.display = "none";
+    
+    // Stop camera hardware to save battery
+    if (scanner) {
+        try { scanner.stop().catch(e => console.log(e)); } catch(e) {}
+    }
+
+    document.getElementById("res-name").textContent    = data.visitor_name || "—";
+    document.getElementById("res-meeting").textContent = data.person_to_meet || "—";
+    document.getElementById("res-purpose").textContent = data.purpose_of_visit || "—";
+    document.getElementById("res-persons").textContent = data.number_of_persons || 1;
+    document.getElementById("res-passcode").textContent = currentPassCode;
+    document.getElementById("res-cin").textContent     = data.check_in_time ? formatDatetime(data.check_in_time) : "—";
+    document.getElementById("res-cout").textContent    = data.check_out_time ? formatDatetime(data.check_out_time) : "—";
+    
+    // Pre-fill existing vehicle details if any
+    document.getElementById("veh-num").value = data.vehicle_number || "";
+
+    const badge = document.getElementById("res-badge");
+    badge.className = "status-badge";
+    const st = data.status || "expired";
+    badge.textContent = st;
+    if (st === "Expected")   badge.classList.add("status-expected");
+    if (st === "Checked In") badge.classList.add("status-checkedin");
+    if (st === "Checked Out")badge.classList.add("status-checkedout");
+    if (st === "expired")    badge.classList.add("status-expired");
+
+    // Enable/disable action buttons based on status
+    const btnIn  = document.getElementById("btn-in");
+    const btnOut = document.getElementById("btn-out");
+    btnIn.disabled  = (st !== "Expected");
+    btnOut.disabled = (st !== "Checked In");
+    
+    // If expired, hide action buttons completely and show warning
+    const isExpired = (st === "expired");
+    document.getElementById("expired-warning").style.display = isExpired ? "block" : "none";
+    document.querySelector(".action-btns").style.display = isExpired ? "none" : "flex";
+    
+    // Show vehicle entry box only if expected
+    document.getElementById("vehicle-entry-box").style.display = (st === "Expected") ? "block" : "none";
+}
+
+async function doAction(action) {
+    let args = { pass_code: currentPassCode };
+    
+    if (action === "checkin") {
+        const vehNum = document.getElementById("veh-num").value.trim();
+        const photoInput = document.getElementById("veh-photo");
+        
+        if (!vehNum && (!photoInput.files || photoInput.files.length === 0)) {
+            showToast("Please enter Vehicle Number OR capture a Photo.", true);
+            return;
+        }
+        
+        if (photoInput.files && photoInput.files.length > 0) {
+            document.getElementById("upload-status").style.display = "block";
+            document.getElementById("btn-in").disabled = true;
+            try {
+                let fd = new FormData();
+                fd.append("file", photoInput.files[0], photoInput.files[0].name);
+                fd.append("is_private", 0);
+                
+                let res = await fetch("/api/method/upload_file", {
+                    method: "POST",
+                    headers: { "X-Frappe-CSRF-Token": frappe.csrf_token },
+                    body: fd
+                });
+                let data = await res.json();
+                args.vehicle_photo = data.message.file_url;
+            } catch (err) {
+                document.getElementById("upload-status").style.display = "none";
+                document.getElementById("btn-in").disabled = false;
+                showToast("Failed to upload photo", true);
+                return;
+            }
+            document.getElementById("upload-status").style.display = "none";
+        }
+        
+        if (vehNum) {
+            args.vehicle_number = vehNum;
+        }
+    }
+
+    const method = action === "checkin"
+        ? "visitor_management.visitor_management.api.gate_scan.do_checkin"
+        : "visitor_management.visitor_management.api.gate_scan.do_checkout";
+
+    frappe.call({
+        method: method,
+        args: args,
+        callback: function(r) {
+            if (r.exc) { showToast("System Error", true); return; }
+            if (r.message && r.message.error) {
+                showToast(r.message.error, true);
+                return;
+            }
+            showToast(r.message.message, false);
+            // Re-fetch to update timestamps and buttons
+            setTimeout(() => lookupPass(currentPassCode), 800);
+        }
+    });
+}
+
+function resetScanner() {
+    currentPassCode = null;
+    document.getElementById("result-card").style.display = "none";
+    document.getElementById("scan-again-btn").style.display = "none";
+    document.getElementById("manual-code").value = "";
+    document.getElementById("veh-num").value = "";
+    document.getElementById("veh-photo").value = "";
+    document.getElementById("upload-status").style.display = "none";
+    
+    // Show camera and manual entry again
+    document.getElementById("reader").style.display = "block";
+    document.querySelector(".manual-box").style.display = "block";
+    
+    // Restart camera
+    startScanner();
+}
+
+let toastTimeout = null;
+function showToast(msg, isError) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "toast" + (isError ? " error" : "");
+    t.style.display = "block";
+    
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => { t.style.display = "none"; }, 4000);
+}
+
+function formatDatetime(dtStr) {
+    if (!dtStr) return "—";
+    try {
+        const d = new Date(dtStr);
+        return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+               + " " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    } catch(e) { return dtStr; }
+}
+
+// Start scanner on load
+window.addEventListener("load", startScanner);
+</script>
+{% endblock %}

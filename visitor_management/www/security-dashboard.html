@@ -1,0 +1,242 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<style>
+    header, footer, .web-footer, .navbar { display: none !important; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        background: #0f1117;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        color: #e2e8f0;
+        min-height: 100vh;
+    }
+
+    .topbar {
+        background: linear-gradient(90deg, #1a4f8b 0%, #2d74c4 100%);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid #f0c040;
+    }
+    .topbar-left h1 { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+    .topbar-left p  { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+    .topbar-right { display: flex; gap: 10px; align-items: center; }
+
+    .btn-scan {
+        background: #f0c040; color: #1a1a2e; border: none;
+        border-radius: 8px; padding: 9px 16px; font-size: 13px;
+        font-weight: 700; cursor: pointer; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-scan:hover { background: #e0b030; }
+    .btn-refresh {
+        background: rgba(255,255,255,0.15); color: #fff;
+        border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+        padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn-refresh:hover { background: rgba(255,255,255,0.22); }
+
+    .stats-row {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 12px; padding: 16px 20px;
+    }
+    .stat-card {
+        background: #1a1d2e; border-radius: 12px; padding: 16px;
+        border: 1px solid rgba(255,255,255,0.07); text-align: center;
+    }
+    .stat-card .num { font-size: 36px; font-weight: 900; line-height: 1; }
+    .stat-card .lbl { font-size: 11px; opacity: 0.55; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+    .stat-total    .num { color: #a78bfa; }
+    .stat-expected .num { color: #f0c040; }
+    .stat-in       .num { color: #48c78e; }
+    .stat-out      .num { color: #fb7185; }
+
+    .sections { padding: 0 20px 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .section-full { grid-column: 1 / -1; }
+
+    .section-card {
+        background: #1a1d2e; border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.07); overflow: hidden;
+    }
+    .section-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .section-header h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .count-badge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .badge-yellow { background: rgba(240,192,64,0.15); color: #f0c040; }
+    .badge-green  { background: rgba(72,199,142,0.15); color: #48c78e; }
+    .badge-red    { background: rgba(251,113,133,0.15); color: #fb7185; }
+
+    .visitor-table { width: 100%; border-collapse: collapse; }
+    .visitor-table th {
+        font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+        color: rgba(255,255,255,0.35); padding: 10px 18px; text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 600;
+    }
+    .visitor-table td {
+        padding: 11px 18px; font-size: 13px;
+        border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle;
+    }
+    .visitor-table tr:last-child td { border-bottom: none; }
+    .visitor-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+    .name-cell { font-weight: 600; color: #e2e8f0; }
+    .sub-cell  { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+    .time-cell { font-size: 12px; color: #a0aec0; }
+
+    .empty-msg td {
+        text-align: center; padding: 28px;
+        color: rgba(255,255,255,0.25); font-size: 13px; font-style: italic;
+    }
+
+    .loading-msg { 
+        text-align: center; padding: 28px;
+        color: rgba(255,255,255,0.3); font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
+        .sections  { grid-template-columns: 1fr; }
+        .section-full { grid-column: 1; }
+    }
+</style>
+
+<!-- Top Bar -->
+<div class="topbar">
+    <div class="topbar-left">
+        <h1>Security Gate Dashboard</h1>
+        <p id="today-label">Loading...</p>
+    </div>
+    <div class="topbar-right">
+        <button class="btn-refresh" onclick="loadData()">Refresh</button>
+        <a href="/security-scan" class="btn-scan">Open Scanner</a>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="stats-row">
+    <div class="stat-card stat-total">
+        <div class="num" id="stat-total">—</div>
+        <div class="lbl">Total Today</div>
+    </div>
+    <div class="stat-card stat-expected">
+        <div class="num" id="stat-expected">—</div>
+        <div class="lbl">Expected</div>
+    </div>
+    <div class="stat-card stat-in">
+        <div class="num" id="stat-in">—</div>
+        <div class="lbl">Inside</div>
+    </div>
+    <div class="stat-card stat-out">
+        <div class="num" id="stat-out">—</div>
+        <div class="lbl">Exited</div>
+    </div>
+</div>
+
+<!-- Sections -->
+<div class="sections">
+
+    <div class="section-card">
+        <div class="section-header">
+            <h3>Currently Inside</h3>
+            <span class="count-badge badge-green" id="badge-in">0</span>
+        </div>
+        <table class="visitor-table">
+            <thead><tr><th>Visitor</th><th>Check-In</th></tr></thead>
+            <tbody id="tbody-in"><tr><td colspan="2" class="loading-msg">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h3>Expected Today</h3>
+            <span class="count-badge badge-yellow" id="badge-expected">0</span>
+        </div>
+        <table class="visitor-table">
+            <thead><tr><th>Visitor</th><th>Valid Till</th></tr></thead>
+            <tbody id="tbody-expected"><tr><td colspan="2" class="loading-msg">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <div class="section-card section-full">
+        <div class="section-header">
+            <h3>Exited Today</h3>
+            <span class="count-badge badge-red" id="badge-out">0</span>
+        </div>
+        <table class="visitor-table">
+            <thead><tr><th>Visitor</th><th>Host</th><th>Purpose</th><th>Check-In</th><th>Check-Out</th></tr></thead>
+            <tbody id="tbody-out"><tr><td colspan="5" class="loading-msg">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+function loadData() {
+    frappe.call({
+        method: "visitor_management.visitor_management.api.dashboard_data.get_dashboard_data",
+        callback: function(r) {
+            if (r.exc) { console.error(r.exc); return; }
+            const d = r.message;
+
+            document.getElementById("today-label").textContent = d.today_date;
+            document.getElementById("stat-total").textContent    = d.total_today;
+            document.getElementById("stat-expected").textContent = d.total_expected;
+            document.getElementById("stat-in").textContent       = d.total_checked_in;
+            document.getElementById("stat-out").textContent      = d.total_checked_out;
+            document.getElementById("badge-in").textContent      = d.total_checked_in;
+            document.getElementById("badge-expected").textContent = d.total_expected;
+            document.getElementById("badge-out").textContent     = d.total_checked_out;
+
+            // Currently Inside
+            const tbIn = document.getElementById("tbody-in");
+            if (d.checked_in.length === 0) {
+                tbIn.innerHTML = '<tr class="empty-msg"><td colspan="2">No visitors currently inside</td></tr>';
+            } else {
+                tbIn.innerHTML = d.checked_in.map(v => `
+                    <tr>
+                        <td><div class="name-cell">${v.visitor_name}</div><div class="sub-cell">→ ${v.host}</div></td>
+                        <td class="time-cell">${v.check_in_fmt}</td>
+                    </tr>`).join("");
+            }
+
+            // Expected
+            const tbExp = document.getElementById("tbody-expected");
+            if (d.expected.length === 0) {
+                tbExp.innerHTML = '<tr class="empty-msg"><td colspan="2">No pending expected visitors</td></tr>';
+            } else {
+                tbExp.innerHTML = d.expected.map(v => `
+                    <tr>
+                        <td><div class="name-cell">${v.visitor_name}</div><div class="sub-cell">${v.purpose_of_visit || "—"} · ${v.host}</div></td>
+                        <td class="time-cell">${v.valid_till_fmt}</td>
+                    </tr>`).join("");
+            }
+
+            // Exited
+            const tbOut = document.getElementById("tbody-out");
+            if (d.checked_out.length === 0) {
+                tbOut.innerHTML = '<tr class="empty-msg"><td colspan="5">No visitors exited yet today</td></tr>';
+            } else {
+                tbOut.innerHTML = d.checked_out.map(v => `
+                    <tr>
+                        <td class="name-cell">${v.visitor_name}</td>
+                        <td class="time-cell">${v.host}</td>
+                        <td class="time-cell">${v.purpose_of_visit || "—"}</td>
+                        <td class="time-cell">${v.check_in_fmt}</td>
+                        <td class="time-cell">${v.check_out_fmt}</td>
+                    </tr>`).join("");
+            }
+        }
+    });
+}
+
+// Load on page ready, then auto-refresh every 60s
+frappe.ready(function() {
+    loadData();
+    setInterval(loadData, 60000);
+});
+</script>
+{% endblock %}

@@ -14,15 +14,13 @@ def validate(doc, method):
     if not doc.secure_token_url:
         doc.secure_token_url = str(uuid.uuid4().hex)
 
-    # 3. Expiration Logic
+    # 3. Validation Logic
     from frappe.utils import get_datetime
-    current_time = now_datetime()
     if doc.valid_from and doc.valid_till:
         valid_from_dt = get_datetime(doc.valid_from)
         valid_till_dt = get_datetime(doc.valid_till)
-        if current_time < valid_from_dt or current_time > valid_till_dt:
-            if doc.status != "Checked Out":
-                frappe.throw(f"Pass is invalid. Valid from {doc.valid_from} to {doc.valid_till}.")
+        if valid_from_dt > valid_till_dt:
+            frappe.throw("Error: 'Valid From' time cannot be after 'Valid Till' time.")
 
     # 4. Status Routing Logic
     if not doc.is_new() and doc.status == "Checked Out":
@@ -44,21 +42,35 @@ def validate(doc, method):
 
     # 6. Auto-generate Draft Share Message
     if doc.pass_code and doc.secure_token_url:
-        from frappe.utils import get_datetime
-        if doc.valid_from:
-            dt = get_datetime(doc.valid_from)
-            day = dt.day
-            ordinal = 'th' if 11 <= day <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-            formatted_date = f"{day}{ordinal} of {dt.strftime('%B %Y')}"
-        else:
-            formatted_date = "Today"
-            
-        company_name = frappe.db.get_single_value("Global Defaults", "default_company") or "Our Company"
+        from frappe.utils import get_datetime, format_datetime
         
+        company_name = frappe.db.get_single_value("Global Defaults", "default_company") or "Our Company"
         message = f"Dear {doc.visitor_name} Ji,\n\n"
-        message += f"Your upcoming visit to {company_name} has been scheduled. We are expecting you on: {formatted_date}\n"
-        message += f"Your Gate Pass has been successfully generated for your upcoming visit.\n\n"
-        message += f"Visitor Passcode: {doc.pass_code}\n\n"
+        
+        if doc.valid_from and doc.valid_till:
+            dt_from = get_datetime(doc.valid_from)
+            dt_till = get_datetime(doc.valid_till)
+            
+            day = dt_from.day
+            ordinal = 'th' if 11 <= day <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+            formatted_date = f"{day}{ordinal} of {dt_from.strftime('%B %Y')}"
+            
+            v_from_str = format_datetime(doc.valid_from, "dd-MM-yyyy hh:mm a")
+            v_till_str = format_datetime(doc.valid_till, "dd-MM-yyyy hh:mm a")
+            
+            if dt_from.date() == dt_till.date():
+                v_from_time = format_datetime(doc.valid_from, "hh:mm a")
+                v_till_time = format_datetime(doc.valid_till, "hh:mm a")
+                message += f"Your upcoming visit to {company_name} has been scheduled for the {formatted_date}.\n"
+                message += f"Your Gate Pass has been successfully generated and is valid from {v_from_time} to {v_till_time}.\n\n"
+            else:
+                message += f"Your upcoming visit to {company_name} has been scheduled.\n"
+                message += f"Your Gate Pass has been successfully generated and is valid from {v_from_str} to {v_till_str}.\n\n"
+        else:
+            message += f"Your upcoming visit to {company_name} has been scheduled.\n"
+            message += f"Your Gate Pass has been successfully generated.\n\n"
+        v_type = doc.visitor_type if doc.visitor_type else "Visitor"
+        message += f"{v_type} Passcode: {doc.pass_code}\n\n"
         message += f"{get_url()}/visitor?token={doc.secure_token_url}\n\n"
         message += f"Please click the secure link above to open your Digital Gate Pass, which contains your scannable QR Code and present this to the Security Guard upon arrival for quick entry and Exit."
         doc.draft_share_message = message

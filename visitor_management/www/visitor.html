@@ -22,18 +22,51 @@
         margin: 2rem auto;
         animation: floatIn 0.6s ease-out forwards;
     }
-    .pass-header {
-        background: linear-gradient(to right, #1a4f8b, #2d74c4);
-        color: white;
-        padding: 12px 20px;
-        text-align: center;
-        border-bottom: 4px solid #f39c12;
+    .pass-header-grid {
+        display: flex;
+        background: white;
+        border-bottom: 4px solid #14b8a6;
+    }
+    .header-logo-section {
+        flex: 0 1 auto;
+        padding: 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid #cbd5e1;
     }
     .company-logo {
-        max-height: 50px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        width: auto;
+        max-width: 150px;
+        max-height: 90px;
+        object-fit: contain;
+        mix-blend-mode: multiply;
+        padding: 8px;
+    }
+    .header-text-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .header-company-name {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 15px;
+        border-bottom: 1px solid #cbd5e1;
+        color: #0f766e;
+        text-align: center;
+        background: #f8fafc;
+    }
+    .header-title-bar {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 15px;
+        background: linear-gradient(to right, #0f766e, #14b8a6);
+        color: white;
     }
     .data-table {
         width: 100%;
@@ -60,8 +93,8 @@
         border-radius: 0 6px 6px 0;
     }
     .code-box {
-        background: #fff5f5;
-        border: 2px dashed #fc8181;
+        background: #f0fdf4;
+        border: 2px dashed #10b981;
         border-radius: 12px;
         padding: 12px;
         text-align: center;
@@ -80,12 +113,12 @@
         margin-top: 8px;
     }
     .safety-box {
-        background: #ebf8ff;
-        border-left: 4px solid #3182ce;
+        background: #f0fdfa;
+        border-left: 4px solid #0d9488;
         padding: 10px 12px;
         border-radius: 0 8px 8px 0;
         font-size: 11px;
-        color: #2c5282;
+        color: #000000;
     }
     .safety-box ol { padding-left: 15px; margin: 0; }
     .safety-box li { margin-bottom: 2px; }
@@ -126,19 +159,19 @@
         }
         .print-btn { display: none !important; }
         .pass-header { 
-            background: #1a4f8b !important; 
+            background: #0f766e !important; 
             color: white !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
         .code-box {
-            background: #fff5f5 !important;
-            border: 2px dashed #fc8181 !important;
+            background: #f0fdf4 !important;
+            border: 2px dashed #10b981 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
         .safety-box {
-            background: #ebf8ff !important;
+            background: #f0fdfa !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
@@ -153,19 +186,27 @@
         </div>
     {% else %}
         <div class="glass-card">
-            <div class="pass-header">
-                {% if company_logo %}
-                    <img src="{{ company_logo }}" class="company-logo" alt="{{ company_name }}">
-                {% endif %}
-                <h3 style="margin:0; font-weight: 800; letter-spacing: 1px;">{{ company_name | upper }}</h3>
-                <h6 style="margin: 5px 0 0 0; opacity: 0.9;">SECURE DIGITAL GATE PASS</h6>
+            <div class="pass-header-grid">
+                <div class="header-logo-section">
+                    {% if company_logo %}
+                        <img src="{{ company_logo }}" class="company-logo" alt="{{ company_name }}">
+                    {% endif %}
+                </div>
+                <div class="header-text-section">
+                    <div class="header-company-name">
+                        <h5 style="margin:0; font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; line-height: 1;">{{ company_name }}</h5>
+                    </div>
+                    <div class="header-title-bar">
+                        <h5 style="margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: 1px; color: white; line-height: 1;">{{ doc.visitor_type }} Gate Pass</h5>
+                    </div>
+                </div>
             </div>
             
             <div class="card-body p-3">
                 <table class="data-table">
                     <tr>
                         <td class="label-cell">Visitor Name</td>
-                        <td class="value-cell font-weight-bold">{{ doc.visitor_name }}</td>
+                        <td class="value-cell">{{ doc.visitor_name }}</td>
                     </tr>
                     <tr>
                         <td class="label-cell">Visiting to</td>
@@ -177,30 +218,19 @@
                     </tr>
                     <tr>
                         <td class="label-cell">Valid Till</td>
-                        <td class="value-cell" style="color: #c53030; font-weight: 700;">{{ valid_till_formatted }}</td>
+                        <td class="value-cell">{{ valid_till_formatted }}</td>
                     </tr>
-                    <tr>
-                        <td class="label-cell">Status</td>
-                        <td class="value-cell font-weight-bold" style="text-transform: uppercase;">
-                            {% if doc.status == 'Expected' %}
-                                <span style="color: #d35400; background: rgba(211,84,0,0.1); padding: 2px 8px; border-radius: 4px;">{{ doc.status }}</span>
-                            {% elif doc.status == 'Checked In' %}
-                                <span style="color: #27ae60; background: rgba(39,174,96,0.1); padding: 2px 8px; border-radius: 4px;">{{ doc.status }}</span>
-                            {% else %}
-                                <span style="color: #7f8c8d; background: rgba(127,140,141,0.1); padding: 2px 8px; border-radius: 4px;">{{ doc.status }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
+
                 </table>
                 
                 <div class="code-box shadow-sm">
-                    <p style="margin:0; color: #c53030; font-weight: 600; text-transform: uppercase; font-size: 12px;">Visitor Passcode</p>
-                    <h1 style="color: #e53e3e; font-weight: 900; letter-spacing: 6px; margin: 5px 0;">{{ doc.pass_code }}</h1>
+                    <p style="margin:0; color: #047857; font-weight: 600; font-size: 12px;">{{ doc.visitor_type }} Passcode</p>
+                    <h1 style="color: #059669; font-weight: 900; letter-spacing: 6px; margin: 5px 0;">{{ doc.pass_code }}</h1>
                     
                     {% if doc.qr_code %}
                         <img src="{{ doc.qr_code }}" class="qr-img">
                     {% endif %}
-                    <p class="mt-3 mb-0" style="font-size: 13px; color: #1a4f8b; font-weight: 700;">Show this pass when entering and exiting for Check-In and Check-Out.</p>
+                    <p class="mt-3 mb-0" style="font-size: 13px; color: #000000; font-weight: 700;">Show this pass when entering and exiting for Check-In and Check-Out.</p>
                 </div>
                 
                 <div class="safety-box">
@@ -222,7 +252,7 @@
         </div>
         
         <div class="text-center mt-4 print-btn">
-            <button class="btn btn-lg shadow" onclick="window.print()" style="background: #1a4f8b; color: white; border-radius: 30px; font-weight: 600; padding: 12px 40px; transition: all 0.2s;">
+            <button class="btn btn-lg shadow" onclick="window.print()" style="background: #0f766e; color: white; border-radius: 30px; font-weight: 600; padding: 12px 40px; transition: all 0.2s;">
                 <i class="fa fa-print mr-2"></i> Print / Download
             </button>
         </div>

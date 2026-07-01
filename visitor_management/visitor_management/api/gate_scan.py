@@ -23,10 +23,16 @@ def scan_pass(pass_code):
         return {"error": f"No visitor pass found for code: {pass_code}"}
     
     # Check if pass is expired
-    from frappe.utils import now_datetime, get_datetime
+    from frappe.utils import now_datetime, get_datetime, format_datetime
     now = now_datetime()
     valid_till = get_datetime(visitor_log.valid_till) if visitor_log.valid_till else None
+    valid_from = get_datetime(visitor_log.valid_from) if visitor_log.valid_from else None
     
+    if valid_from and valid_till and now < valid_from:
+        v_from = format_datetime(visitor_log.valid_from, "dd-MM-yyyy hh:mm a")
+        v_till = format_datetime(visitor_log.valid_till, "dd-MM-yyyy hh:mm a")
+        return {"error": f"This Gatepass is valid from {v_from} to {v_till}. The visitor has arrived too early."}
+
     is_expired = False
     if valid_till and now > valid_till:
         is_expired = True

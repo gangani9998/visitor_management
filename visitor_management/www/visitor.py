@@ -44,21 +44,22 @@ def get_context(context):
         context.company_name = "Company"
         context.company_logo = None
         
-    def format_ordinal_date(dt_str):
+    def format_ordinal_datetime(dt_str):
         if not dt_str: return "Today"
         from frappe.utils import get_datetime
         dt = get_datetime(dt_str)
         day = dt.day
         ordinal = 'th' if 11 <= day <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-        return f"{day}{ordinal} of {dt.strftime('%B %Y')}"
+        time_str = dt.strftime('%I:%M %p')
+        return f"{day}{ordinal} of {dt.strftime('%B %Y')} at {time_str}"
 
     if context.doc.valid_from:
-        context.valid_from_formatted = format_ordinal_date(context.doc.valid_from)
+        context.valid_from_formatted = format_ordinal_datetime(context.doc.valid_from)
     else:
         context.valid_from_formatted = "Today"
         
     if context.doc.valid_till:
-        context.valid_till_formatted = format_ordinal_date(context.doc.valid_till)
+        context.valid_till_formatted = format_ordinal_datetime(context.doc.valid_till)
     else:
         context.valid_till_formatted = "Today"
         

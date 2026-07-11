@@ -8,7 +8,7 @@ def expire_visitor_passes():
     """
     frappe.db.sql("""
         UPDATE `tabVisitor Log` 
-        SET status = 'expired' 
+        SET status = 'Expired' 
         WHERE status = 'Expected' 
         AND valid_till < %s
     """, (now_datetime(),))

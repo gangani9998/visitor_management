@@ -31,7 +31,7 @@ def create_visitor_log():
                 {"fieldname": "valid_till", "fieldtype": "Datetime", "label": "Valid Till", "in_list_view": 1},
                 
                 {"fieldname": "cb_status", "fieldtype": "Column Break"},
-                {"fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "Expected\nChecked In\nChecked Out", "default": "Expected", "reqd": 1, "in_list_view": 1},
+                {"fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "Expected\nChecked In\nChecked Out\nExpired", "default": "Expected", "reqd": 1, "in_list_view": 1},
                 {"fieldname": "check_in_time", "fieldtype": "Datetime", "label": "Check-In Time", "read_only": 1},
                 {"fieldname": "check_out_time", "fieldtype": "Datetime", "label": "Check-Out Time", "read_only": 1},
                 

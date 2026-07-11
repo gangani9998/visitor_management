@@ -86,7 +86,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "visitor_management.install.before_install"
-# after_install = "visitor_management.install.after_install"
+after_install = "visitor_management.install.after_install"
 
 # Uninstallation
 # ------------

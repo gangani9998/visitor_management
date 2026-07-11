@@ -230,9 +230,15 @@
     #scan-again-btn:hover { background: rgba(255,255,255,0.14); }
 </style>
 
+
+<div style="background: #ff4757; color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; position: sticky; top: 0; z-index: 99999;">
+    ⚠️ TRAINING MODE ⚠️<br>
+    <span style="font-size: 11px; font-weight: normal; text-transform: none;">No real data is saved. Practice freely.</span>
+</div>
 <div class="scanner-wrap">
+
     <div class="scanner-header">
-        <h2>Security Gate Scanner</h2>
+        <h2>Scanner Simulator</h2>
         <p>Scan visitor QR Code or enter Pass Code manually</p>
     </div>
 
@@ -310,8 +316,10 @@
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
+
 let currentPassCode = null;
 let scanner = null;
+let simulatedDb = {}; // Store mock state
 
 function startScanner() {
     scanner = new Html5Qrcode("reader");
@@ -321,13 +329,12 @@ function startScanner() {
         { facingMode: "environment" },
         config,
         (decodedText) => {
-            // QR contains just the pass_code
             if (decodedText && decodedText !== currentPassCode) {
                 scanner.pause(true);
                 lookupPass(decodedText.trim().toUpperCase());
             }
         },
-        (err) => { /* scan errors are normal, ignore */ }
+        (err) => { }
     ).catch((err) => {
         document.getElementById("reader").innerHTML = '<p style="padding:20px;color:#aaa;text-align:center;font-size:13px;">Camera not available. Use manual entry below.</p>';
     });
@@ -337,23 +344,25 @@ function lookupPass(code) {
     if (!code || code.length < 4) { showToast("Please enter a valid pass code.", true); return; }
 
     currentPassCode = code.toUpperCase();
-
-    frappe.call({
-        method: "visitor_management.visitor_management.api.gate_scan.scan_pass",
-        args: { pass_code: currentPassCode },
-        callback: function(r) {
-            if (r.exc) { showToast("System Error", true); return; }
-            if (r.message && r.message.error) {
-                showToast(r.message.error, true);
-                if (scanner) { try { scanner.resume(); } catch(e) {} }
-                return;
-            }
-            renderResult(r.message);
-        },
-        error: function(err) {
-            showToast("Failed to look up pass. Check connection.", true);
+    
+    // Mock the backend lookup
+    setTimeout(() => {
+        if (!simulatedDb[currentPassCode]) {
+            // First time seeing this code, pretend it's a new Expected visitor
+            simulatedDb[currentPassCode] = {
+                visitor_name: "Test Visitor (" + currentPassCode + ")",
+                person_to_meet: "Training Manager",
+                purpose_of_visit: "Training Simulation",
+                number_of_persons: 1,
+                status: "Expected",
+                check_in_time: null,
+                check_out_time: null,
+                vehicle_number: ""
+            };
         }
-    });
+        
+        renderResult(simulatedDb[currentPassCode]);
+    }, 400); // Simulate network delay
 }
 
 function renderResult(data) {
@@ -361,11 +370,9 @@ function renderResult(data) {
     card.style.display = "block";
     document.getElementById("scan-again-btn").style.display = "block";
     
-    // Hide camera and manual entry to clean up UI
     document.getElementById("reader").style.display = "none";
     document.querySelector(".manual-box").style.display = "none";
     
-    // Stop camera hardware to save battery
     if (scanner) {
         try { scanner.stop().catch(e => console.log(e)); } catch(e) {}
     }
@@ -378,7 +385,6 @@ function renderResult(data) {
     document.getElementById("res-cin").textContent     = data.check_in_time ? formatDatetime(data.check_in_time) : "—";
     document.getElementById("res-cout").textContent    = data.check_out_time ? formatDatetime(data.check_out_time) : "—";
     
-    // Pre-fill existing vehicle details if any
     document.getElementById("veh-num").value = data.vehicle_number || "";
 
     const badge = document.getElementById("res-badge");
@@ -390,24 +396,19 @@ function renderResult(data) {
     if (st === "Checked Out")badge.classList.add("status-checkedout");
     if (st === "expired")    badge.classList.add("status-expired");
 
-    // Enable/disable action buttons based on status
     const btnIn  = document.getElementById("btn-in");
     const btnOut = document.getElementById("btn-out");
     btnIn.disabled  = (st !== "Expected");
     btnOut.disabled = (st !== "Checked In");
     
-    // If expired, hide action buttons completely and show warning
     const isExpired = (st === "expired");
     document.getElementById("expired-warning").style.display = isExpired ? "block" : "none";
     document.querySelector(".action-btns").style.display = isExpired ? "none" : "flex";
     
-    // Show vehicle entry box only if expected
     document.getElementById("vehicle-entry-box").style.display = (st === "Expected") ? "block" : "none";
 }
 
 async function doAction(action) {
-    let args = { pass_code: currentPassCode };
-    
     if (action === "checkin") {
         const vehNum = document.getElementById("veh-num").value.trim();
         const photoInput = document.getElementById("veh-photo");
@@ -420,50 +421,27 @@ async function doAction(action) {
         if (photoInput.files && photoInput.files.length > 0) {
             document.getElementById("upload-status").style.display = "block";
             document.getElementById("btn-in").disabled = true;
-            try {
-                let fd = new FormData();
-                fd.append("file", photoInput.files[0], photoInput.files[0].name);
-                fd.append("is_private", 0);
-                
-                let res = await fetch("/api/method/upload_file", {
-                    method: "POST",
-                    headers: { "X-Frappe-CSRF-Token": frappe.csrf_token },
-                    body: fd
-                });
-                let data = await res.json();
-                args.vehicle_photo = data.message.file_url;
-            } catch (err) {
-                document.getElementById("upload-status").style.display = "none";
-                document.getElementById("btn-in").disabled = false;
-                showToast("Failed to upload photo", true);
-                return;
-            }
+            // Fake upload delay
+            await new Promise(r => setTimeout(r, 600));
             document.getElementById("upload-status").style.display = "none";
         }
         
-        if (vehNum) {
-            args.vehicle_number = vehNum;
-        }
+        // Mock checking in
+        simulatedDb[currentPassCode].status = "Checked In";
+        simulatedDb[currentPassCode].check_in_time = new Date().toISOString();
+        if (vehNum) simulatedDb[currentPassCode].vehicle_number = vehNum;
+        
+        showToast("SIMULATION: Visitor Checked In Successfully", false);
+        
+    } else if (action === "checkout") {
+        // Mock checking out
+        simulatedDb[currentPassCode].status = "Checked Out";
+        simulatedDb[currentPassCode].check_out_time = new Date().toISOString();
+        
+        showToast("SIMULATION: Visitor Checked Out Successfully", false);
     }
-
-    const method = action === "checkin"
-        ? "visitor_management.visitor_management.api.gate_scan.do_checkin"
-        : "visitor_management.visitor_management.api.gate_scan.do_checkout";
-
-    frappe.call({
-        method: method,
-        args: args,
-        callback: function(r) {
-            if (r.exc) { showToast("System Error", true); return; }
-            if (r.message && r.message.error) {
-                showToast(r.message.error, true);
-                return;
-            }
-            showToast(r.message.message, false);
-            // Re-fetch to update timestamps and buttons
-            setTimeout(() => lookupPass(currentPassCode), 800);
-        }
-    });
+    
+    setTimeout(() => lookupPass(currentPassCode), 400);
 }
 
 function resetScanner() {
@@ -475,11 +453,9 @@ function resetScanner() {
     document.getElementById("veh-photo").value = "";
     document.getElementById("upload-status").style.display = "none";
     
-    // Show camera and manual entry again
     document.getElementById("reader").style.display = "block";
     document.querySelector(".manual-box").style.display = "block";
     
-    // Restart camera
     startScanner();
 }
 
@@ -503,7 +479,7 @@ function formatDatetime(dtStr) {
     } catch(e) { return dtStr; }
 }
 
-// Start scanner on load
 window.addEventListener("load", startScanner);
+
 </script>
 {% endblock %}

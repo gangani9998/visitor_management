@@ -28,10 +28,10 @@ class VisitorLog(Document):
 				frappe.throw("Error: 'Valid From' time cannot be after 'Valid Till' time.")
 
 		# 4. Status Routing Logic
-		if not self.is_new() and self.status == "Checked Out":
+		if not self.is_new() and self.status == "Checked In":
 			if self.entry_type == "Single Entry":
 				old_doc = self.get_doc_before_save()
-				if old_doc and old_doc.status == "Checked Out" and self.status == "Checked In":
+				if old_doc and old_doc.status == "Checked Out":
 					frappe.throw("Error: Code already used. Single Entry pass is expired.")
 			
 		# Auto-stamp check-in / check-out times based on status transition

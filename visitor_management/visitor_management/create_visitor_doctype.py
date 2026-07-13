@@ -22,6 +22,7 @@ def create_visitor_log():
                 {"fieldname": "cb_details", "fieldtype": "Column Break"},
                 {"fieldname": "visitor_type", "fieldtype": "Select", "label": "Visitor Type", "reqd": 1, "options": "Visitor\nContractor\nVendor\nClient\nInterviewee\nWalk-in\nDelivery Truck"},
                 {"fieldname": "purpose_of_visit", "fieldtype": "Select", "label": "Purpose of Visit", "reqd": 1, "options": "Meeting\nMaterial Inward\nMaterial Outward\nMaintenance\nOther"},
+                {"fieldname": "specify_purpose", "fieldtype": "Data", "label": "Specify Purpose", "depends_on": "eval:doc.purpose_of_visit=='Other'"},
                 {"fieldname": "vehicle_number", "fieldtype": "Data", "label": "Vehicle Number"},
                 {"fieldname": "vehicle_photo", "fieldtype": "Attach Image", "label": "Vehicle / Material Photo"},
                 
@@ -40,7 +41,10 @@ def create_visitor_log():
                 {"fieldname": "secure_token_url", "fieldtype": "Data", "label": "Secure Token URL", "hidden": 1},
                 
                 {"fieldname": "cb_security", "fieldtype": "Column Break"},
-                {"fieldname": "qr_code", "fieldtype": "Attach Image", "label": "Gate Pass QR Code", "read_only": 1}
+                {"fieldname": "qr_code", "fieldtype": "Attach Image", "label": "Gate Pass QR Code", "read_only": 1},
+                
+                {"fieldname": "sb_share", "fieldtype": "Section Break", "label": "Share Message"},
+                {"fieldname": "draft_share_message", "fieldtype": "Text", "label": "Draft Share Message", "read_only": 1}
             ],
             "permissions": [
                 {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},

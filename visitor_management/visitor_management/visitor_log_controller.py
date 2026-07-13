@@ -99,7 +99,7 @@ def on_update(doc, method):
             "is_private": 0,
             "content": file_content
         })
-        saved_file.save(ignore_permissions=True)
+        saved_file.insert(ignore_permissions=True)
         
         # We need to set the qr_code field to the file url and save again
         frappe.db.set_value("Visitor Log", doc.name, "qr_code", saved_file.file_url, update_modified=False)

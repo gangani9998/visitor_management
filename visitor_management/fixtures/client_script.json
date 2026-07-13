@@ -1,0 +1,13 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Visitor Log",
+  "enabled": 1,
+  "modified": "2026-07-01 10:45:07.953108",
+  "module": "Visitor Management",
+  "name": "Visitor Log WhatsApp Share",
+  "script": "\nfrappe.ui.form.on('Visitor Log', {\n    refresh: function(frm) {\n        if (frm.is_new()) {\n            frm.set_df_property('status', 'options', ['Expected', 'Checked In']);\n        } else {\n            frm.set_df_property('status', 'options', ['Expected', 'Checked In', 'Checked Out']);\n        }\n    },\n    \n    btn_open_gate_pass: function(frm) {\n        if (frm.is_new() || !frm.doc.secure_token_url) {\n            frappe.msgprint(__('Please save the pass first.'));\n            return;\n        }\n        // Open the Web View Link directly!\n        let url = window.location.origin + \"/visitor?token=\" + frm.doc.secure_token_url;\n        window.open(url, '_blank');\n    },\n    \n    btn_copy_message: function(frm) {\n        if (!frm.doc.draft_share_message) {\n            frappe.msgprint(__('No message generated yet. Please save the pass first.'));\n            return;\n        }\n        frappe.utils.copy_to_clipboard(frm.doc.draft_share_message);\n    },\n    \n    btn_share_via_wa: function(frm) {\n        if (!frm.doc.phone) {\n            frappe.msgprint(__('Please enter a Phone Number first.'));\n            return;\n        }\n        if (!frm.doc.draft_share_message) {\n            frappe.msgprint(__('No message generated yet. Please save the pass first.'));\n            return;\n        }\n        let phone = frm.doc.phone.replace(/[^0-9]/g, '');\n        let country = frappe.boot.sysdefaults.country || \"India\";\n        if (phone.length === 10) {\n            if (country === \"India\") {\n                phone = '91' + phone;\n            } else if (country === \"United States\") {\n                phone = '1' + phone;\n            } else if (country === \"United Arab Emirates\") {\n                phone = '971' + phone;\n            }\n        }\n        let text = frm.doc.draft_share_message;\n        let url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;\n        window.open(url, '_blank');\n    },\n    \n    set_till_today: function(frm) {\n        let today = frappe.datetime.get_today(); \n        frm.set_value('valid_till', today + ' 23:59:59');\n        frm.refresh_field('valid_till');\n        frappe.show_alert({message: __('Valid Till set to end of today'), indicator: 'green'});\n    }\n});\n",
+  "view": "Form"
+ }
+]

@@ -1,0 +1,235 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "format:VIS-.YYYY.-.#####",
+ "creation": "2026-07-13 16:11:20.608030",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_details",
+  "visitor_name",
+  "phone",
+  "person_to_meet",
+  "number_of_persons",
+  "cb_details",
+  "visitor_type",
+  "purpose_of_visit",
+  "specify_purpose",
+  "vehicle_number",
+  "vehicle_photo",
+  "sb_access",
+  "entry_type",
+  "valid_from",
+  "valid_till",
+  "cb_status",
+  "status",
+  "check_in_time",
+  "check_out_time",
+  "sb_security",
+  "pass_code",
+  "secure_token_url",
+  "cb_security",
+  "qr_code",
+  "sb_share",
+  "draft_share_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_details",
+   "fieldtype": "Section Break",
+   "label": "Visitor Details"
+  },
+  {
+   "fieldname": "visitor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Visitor / Contractor Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone Number",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "person_to_meet",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Person to Meet",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "number_of_persons",
+   "fieldtype": "Int",
+   "label": "Number of Persons"
+  },
+  {
+   "fieldname": "cb_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "visitor_type",
+   "fieldtype": "Select",
+   "label": "Visitor Type",
+   "options": "Visitor\nContractor\nVendor\nClient\nInterviewee\nWalk-in\nDelivery Truck",
+   "reqd": 1
+  },
+  {
+   "fieldname": "purpose_of_visit",
+   "fieldtype": "Select",
+   "label": "Purpose of Visit",
+   "options": "Meeting\nMaterial Inward\nMaterial Outward\nMaintenance\nOther",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.purpose_of_visit=='Other'",
+   "fieldname": "specify_purpose",
+   "fieldtype": "Data",
+   "label": "Specify Purpose"
+  },
+  {
+   "fieldname": "vehicle_number",
+   "fieldtype": "Data",
+   "label": "Vehicle Number"
+  },
+  {
+   "fieldname": "vehicle_photo",
+   "fieldtype": "Attach Image",
+   "label": "Vehicle / Material Photo"
+  },
+  {
+   "fieldname": "sb_access",
+   "fieldtype": "Section Break",
+   "label": "Access & Validity Logic"
+  },
+  {
+   "default": "Single Entry",
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "label": "Entry Type",
+   "options": "Single Entry\nMultiple Entry",
+   "reqd": 1
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Datetime",
+   "label": "Valid From"
+  },
+  {
+   "fieldname": "valid_till",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Valid Till"
+  },
+  {
+   "fieldname": "cb_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Expected",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Expected\nChecked In\nChecked Out\nExpired",
+   "reqd": 1
+  },
+  {
+   "fieldname": "check_in_time",
+   "fieldtype": "Datetime",
+   "label": "Check-In Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "check_out_time",
+   "fieldtype": "Datetime",
+   "label": "Check-Out Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_security",
+   "fieldtype": "Section Break",
+   "label": "Security Passes (Auto-Generated)"
+  },
+  {
+   "bold": 1,
+   "fieldname": "pass_code",
+   "fieldtype": "Data",
+   "label": "6-Digit Pass Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "secure_token_url",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Secure Token URL"
+  },
+  {
+   "fieldname": "cb_security",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qr_code",
+   "fieldtype": "Attach Image",
+   "label": "Gate Pass QR Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_share",
+   "fieldtype": "Section Break",
+   "label": "Share Message"
+  },
+  {
+   "fieldname": "draft_share_message",
+   "fieldtype": "Text",
+   "label": "Draft Share Message",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-13 16:11:34.160827",
+ "modified_by": "Administrator",
+ "module": "Visitor Management",
+ "name": "Visitor Log",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

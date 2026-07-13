@@ -86,7 +86,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "visitor_management.install.before_install"
-after_install = "visitor_management.install.after_install"
+# after_install = "visitor_management.install.after_install"
 
 # Uninstallation
 # ------------
@@ -138,12 +138,13 @@ after_install = "visitor_management.install.after_install"
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-	"Visitor Log": {
-		"validate": "visitor_management.visitor_management.visitor_log_controller.validate",
-		"on_update": "visitor_management.visitor_management.visitor_log_controller.on_update"
-	}
-}
+fixtures = [
+	{"dt": "Print Format", "filters": [["module", "=", "Visitor Management"]]},
+	{"dt": "Workspace", "filters": [["module", "=", "Visitor Management"]]},
+	{"dt": "Client Script", "filters": [["module", "=", "Visitor Management"]]},
+	{"dt": "Custom DocPerm", "filters": [["parent", "=", "Visitor Log"]]},
+	{"dt": "Role", "filters": [["role_name", "=", "Security Guard"]]}
+]
 
 # Scheduled Tasks
 # ---------------

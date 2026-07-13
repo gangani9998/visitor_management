@@ -2,7 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "autoname": "format:VIS-.YYYY.-.#####",
+ "autoname": "naming_series:VIS-.YYYY.-.#####",
  "creation": "2026-07-13 16:11:20.608030",
  "doctype": "DocType",
  "editable_grid": 1,

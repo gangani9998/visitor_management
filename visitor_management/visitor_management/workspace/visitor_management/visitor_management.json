@@ -11,7 +11,7 @@
  "idx": 0,
  "indicator_color": "green",
  "is_hidden": 0,
- "label": "Security Gate Dashboard",
+ "label": "Visitor Management",
  "link_type": "DocType",
  "links": [
   {
@@ -38,7 +38,7 @@
  "modified": "2026-06-26 18:41:34.601570",
  "modified_by": "Administrator",
  "module": "Visitor Management",
- "name": "Security Gate Dashboard",
+ "name": "Visitor Management",
  "number_cards": [],
  "owner": "Administrator",
  "public": 1,
@@ -68,6 +68,6 @@
    "type": "DocType"
   }
  ],
- "title": "Security Gate Dashboard",
+ "title": "Visitor Management",
  "type": "Workspace"
 }

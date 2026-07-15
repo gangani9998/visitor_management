@@ -12,7 +12,7 @@
   "icon": "shield",
   "indicator_color": "green",
   "is_hidden": 0,
-  "label": "Security Gate Dashboard",
+  "label": "Visitor Management",
   "link_to": null,
   "link_type": "DocType",
   "links": [
@@ -49,7 +49,7 @@
   ],
   "modified": "2026-06-26 18:41:34.601570",
   "module": "Visitor Management",
-  "name": "Security Gate Dashboard",
+  "name": "Visitor Management",
   "number_cards": [],
   "parent_page": null,
   "public": 1,
@@ -101,7 +101,7 @@
     "url": null
    }
   ],
-  "title": "Security Gate Dashboard",
+  "title": "Visitor Management",
   "type": "Workspace"
  }
 ]

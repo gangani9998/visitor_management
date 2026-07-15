@@ -32,6 +32,8 @@
   "secure_token_url",
   "cb_security",
   "qr_code",
+  "sb_history",
+  "entries",
   "sb_share",
   "draft_share_message"
  ],
@@ -185,6 +187,17 @@
    "fieldtype": "Attach Image",
    "label": "Gate Pass QR Code",
    "read_only": 1
+  },
+  {
+   "fieldname": "sb_history",
+   "fieldtype": "Section Break",
+   "label": "Entry & Exit History"
+  },
+  {
+   "fieldname": "entries",
+   "fieldtype": "Table",
+   "label": "Entry/Exit History Log",
+   "options": "Visitor Log Entry"
   },
   {
    "fieldname": "sb_share",

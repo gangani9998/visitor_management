@@ -71,8 +71,8 @@ def do_checkin(pass_code, vehicle_number=None, vehicle_photo=None):
     if doc.status == "Checked In":
         return {"error": f"{doc.visitor_name} is already Checked In!"}
     
-    if doc.status == "Checked Out":
-        return {"error": f"{doc.visitor_name} has already Checked Out!"}
+    if doc.status == "Checked Out" and doc.entry_type == "Single Entry":
+        return {"error": f"{doc.visitor_name} has already Checked Out (Single Entry pass is expired)!"}
         
     if not vehicle_number and not vehicle_photo:
         return {"error": "Vehicle Number or Vehicle Photo is required for Check-In."}

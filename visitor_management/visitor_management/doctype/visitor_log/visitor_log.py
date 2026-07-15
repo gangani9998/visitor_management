@@ -40,8 +40,19 @@ class VisitorLog(Document):
 			if old_doc:
 				if old_doc.status != "Checked In" and self.status == "Checked In":
 					self.check_in_time = now_datetime()
+					self.check_out_time = None
+					self.append("entries", {
+						"check_in_time": self.check_in_time,
+						"vehicle_number": self.vehicle_number,
+						"vehicle_photo": self.vehicle_photo
+					})
 				elif old_doc.status != "Checked Out" and self.status == "Checked Out":
 					self.check_out_time = now_datetime()
+					if self.entries:
+						for row in reversed(self.entries):
+							if not row.check_out_time:
+								row.check_out_time = self.check_out_time
+								break
 
 		# 6. Auto-generate Draft Share Message
 		if self.pass_code and self.secure_token_url:

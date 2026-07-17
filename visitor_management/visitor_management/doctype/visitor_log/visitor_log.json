@@ -8,6 +8,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
   "sb_details",
   "visitor_name",
   "phone",
@@ -35,7 +36,11 @@
   "sb_history",
   "entries",
   "sb_share",
-  "draft_share_message"
+  "draft_share_message",
+  "btn_open_gate_pass",
+  "btn_copy_message",
+  "btn_share_via_wa",
+  "remark"
  ],
  "fields": [
   {
@@ -209,6 +214,26 @@
    "fieldtype": "Text",
    "label": "Draft Share Message",
    "read_only": 1
+  },
+  {
+   "fieldname": "btn_open_gate_pass",
+   "fieldtype": "Button",
+   "label": "Open Gate Pass"
+  },
+  {
+   "fieldname": "btn_copy_message",
+   "fieldtype": "Button",
+   "label": "Copy Message"
+  },
+  {
+   "fieldname": "btn_share_via_wa",
+   "fieldtype": "Button",
+   "label": "Share via WA"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
   }
  ],
  "grid_page_length": 50,

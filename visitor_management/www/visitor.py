@@ -20,8 +20,14 @@ def get_context(context):
         context.error_msg = "This Secure Pass has expired because the visitor has already Checked Out."
         return context
         
-    if context.doc.status == "expired":
+    if context.doc.status == "Expired":
         context.error_msg = "This Secure Pass has expired because the validity period has ended."
+        return context
+        
+    # Dynamically check if current time is past valid_till
+    from frappe.utils import get_datetime, now_datetime
+    if context.doc.valid_till and get_datetime(context.doc.valid_till) < now_datetime():
+        context.error_msg = "This Secure Pass has expired because its validity period has ended."
         return context
     
     # 2. Fetch real employee name

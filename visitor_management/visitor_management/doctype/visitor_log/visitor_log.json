@@ -24,6 +24,7 @@
   "entry_type",
   "valid_from",
   "valid_till",
+  "set_till_today",
   "cb_status",
   "status",
   "check_in_time",
@@ -139,6 +140,11 @@
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Valid Till"
+  },
+  {
+   "fieldname": "set_till_today",
+   "fieldtype": "Button",
+   "label": "EOD"
   },
   {
    "fieldname": "cb_status",

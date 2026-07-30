@@ -1,5 +1,17 @@
 import frappe
 
+def resolve_pass_code_query(pass_code, fields=None):
+    if not pass_code:
+        return None
+    pass_code = pass_code.strip().upper()
+    res = frappe.db.get_value("Visitor Log", {"pass_code": pass_code}, fields, as_dict=isinstance(fields, list))
+    if not res:
+        alt_code = pass_code.replace("0", "O") if "0" in pass_code else pass_code.replace("O", "0")
+        if alt_code != pass_code:
+            res = frappe.db.get_value("Visitor Log", {"pass_code": alt_code}, fields, as_dict=isinstance(fields, list))
+    return res
+
+
 @frappe.whitelist()
 def scan_pass(pass_code):
     """
@@ -9,14 +21,12 @@ def scan_pass(pass_code):
     if not pass_code:
         return {"error": "Pass code is required."}
     
-    # Look up the Visitor Log by pass_code
-    visitor_log = frappe.db.get_value(
-        "Visitor Log",
-        {"pass_code": pass_code},
-        ["name", "visitor_name", "person_to_meet", "purpose_of_visit",
+    # Look up the Visitor Log by pass_code (supports 0 <-> O fallback)
+    visitor_log = resolve_pass_code_query(
+        pass_code,
+        ["name", "visitor_name", "person_to_meet", "department", "purpose_of_visit",
          "valid_from", "valid_till", "status", "check_in_time", "check_out_time",
-         "secure_token_url", "number_of_persons", "vehicle_number"],
-        as_dict=True
+         "secure_token_url", "number_of_persons", "vehicle_number", "visitor_type"]
     )
     
     if not visitor_log:
@@ -63,7 +73,7 @@ def do_checkin(pass_code, vehicle_number=None, vehicle_photo=None):
     """Mark visitor as Checked In with timestamp and vehicle details."""
     from frappe.utils import now_datetime
     
-    visitor_log_name = frappe.db.get_value("Visitor Log", {"pass_code": pass_code}, "name")
+    visitor_log_name = resolve_pass_code_query(pass_code, "name")
     if not visitor_log_name:
         return {"error": f"Pass not found: {pass_code}"}
     
@@ -100,7 +110,7 @@ def do_checkout(pass_code):
     """Mark visitor as Checked Out with timestamp."""
     from frappe.utils import now_datetime
     
-    visitor_log_name = frappe.db.get_value("Visitor Log", {"pass_code": pass_code}, "name")
+    visitor_log_name = resolve_pass_code_query(pass_code, "name")
     if not visitor_log_name:
         return {"error": f"Pass not found: {pass_code}"}
     

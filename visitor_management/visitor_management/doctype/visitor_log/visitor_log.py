@@ -6,14 +6,20 @@ import uuid
 import qrcode
 import io
 from frappe.model.document import Document
+import random
 from frappe.utils import now_datetime, get_url, random_string
+
+def generate_unambiguous_passcode(length=6):
+	# Exclude visually ambiguous characters: 0, O, 1, I, L, 8, B
+	alphabet = "2345679ACDEFGHJKMNPQRSTUVWXYZ"
+	return "".join(random.choice(alphabet) for _ in range(length))
 
 
 class VisitorLog(Document):
 	def validate(self):
-		# 1. Generate 6-Digit Pass Code on first save
+		# 1. Generate unambiguous 6-character Pass Code on first save
 		if not self.pass_code:
-			self.pass_code = random_string(6).upper()
+			self.pass_code = generate_unambiguous_passcode(6)
 
 		# 2. Generate Secure Token URL on first save
 		if not self.secure_token_url:

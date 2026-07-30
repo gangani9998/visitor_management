@@ -13,7 +13,7 @@
   "visitor_name",
   "phone",
   "person_to_meet",
-  "place_of_meeting",
+  "department",
   "number_of_persons",
   "cb_details",
   "visitor_type",
@@ -79,11 +79,12 @@
    "reqd": 1
   },
   {
-   "default": "Management (Office)",
-   "fieldname": "place_of_meeting",
-   "fieldtype": "Select",
-   "label": "Place of Meeting",
-   "options": "Management (Office)\nProduction (Manufacturing Facility)\nWarehouse / Stores\nReception / Admin\nOther",
+   "fetch_from": "person_to_meet.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Department / Area",
+   "options": "Department",
    "reqd": 1
   },
   {

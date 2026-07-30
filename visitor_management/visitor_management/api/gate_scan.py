@@ -46,7 +46,7 @@ def scan_pass(pass_code):
         "name": visitor_log.name,
         "visitor_name": visitor_log.visitor_name,
         "person_to_meet": person_name or visitor_log.person_to_meet,
-        "place_of_meeting": visitor_log.place_of_meeting or "",
+        "department": visitor_log.department or "",
         "purpose_of_visit": visitor_log.purpose_of_visit,
         "number_of_persons": visitor_log.number_of_persons or 1,
         "vehicle_number": visitor_log.vehicle_number or "",

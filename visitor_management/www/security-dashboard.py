@@ -12,7 +12,7 @@ def get_context(context):
     all_today = frappe.get_all("Visitor Log", filters={
         "valid_from": ["<=", today_date + " 23:59:59"],
         "valid_till": [">=", today_date + " 00:00:00"]
-    }, fields=["name", "visitor_name", "person_to_meet", "purpose_of_visit",
+    }, fields=["name", "visitor_name", "person_to_meet", "department", "purpose_of_visit",
                "status", "check_in_time", "check_out_time", "valid_till", "pass_code"])
     
     expected    = [v for v in all_today if v.status == "Expected"]

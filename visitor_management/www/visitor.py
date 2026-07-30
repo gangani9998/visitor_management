@@ -69,5 +69,30 @@ def get_context(context):
     else:
         context.valid_till_formatted = "Today"
         
-    context.title = f"Gate Pass - {context.doc.visitor_name}"
+    purpose_label = context.final_purpose or "Visit"
+    department_label = f" ({context.doc.department})" if context.doc.department else ""
+    description_text = (
+        f"Official Gate Pass for {context.doc.visitor_name} visiting {context.person_to_meet_name}{department_label} at {context.company_name}. "
+        f"Purpose: {purpose_label} | Passcode: {context.doc.pass_code}"
+    )
+    
+    context.title = f"{context.company_name} - {context.doc.visitor_type} Gate Pass ({context.doc.visitor_name})"
+    
+    logo_abs_url = frappe.utils.get_url(context.company_logo) if context.company_logo else ""
+    context.metatags = {
+        "title": context.title,
+        "description": description_text,
+        "og:title": f"Gate Pass: {context.doc.visitor_name} ➔ {context.person_to_meet_name}",
+        "og:description": description_text,
+        "og:type": "website",
+        "og:url": frappe.utils.get_url(),
+        "twitter:card": "summary",
+        "twitter:title": f"Gate Pass: {context.doc.visitor_name} ➔ {context.person_to_meet_name}",
+        "twitter:description": description_text,
+    }
+    if logo_abs_url:
+        context.metatags["og:image"] = logo_abs_url
+        context.metatags["image"] = logo_abs_url
+        context.metatags["twitter:image"] = logo_abs_url
+        
     return context

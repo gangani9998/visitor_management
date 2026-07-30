@@ -1,5 +1,17 @@
 {% extends "templates/web.html" %}
 
+{% block head_include %}
+<meta property="og:title" content="{{ company_name }} - {{ doc.visitor_type }} Gate Pass ({{ doc.visitor_name }})" />
+<meta property="og:description" content="Official Gate Pass for {{ doc.visitor_name }} visiting {{ person_to_meet_name }} at {{ company_name }}. Purpose: {{ doc.purpose_of_visit }} | Passcode: {{ doc.pass_code }}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ frappe.utils.get_url() }}" />
+{% if company_logo %}
+<meta property="og:image" content="{{ frappe.utils.get_url(company_logo) }}" />
+<meta property="og:image:width" content="600" />
+<meta property="og:image:height" content="600" />
+{% endif %}
+{% endblock %}
+
 {% block page_content %}
 <style>
     /* Hide Frappe default Navbar and Footer */

@@ -209,6 +209,12 @@
                         <td class="label-cell">Visiting to</td>
                         <td class="value-cell">{{ person_to_meet_name }}</td>
                     </tr>
+                    {% if doc.place_of_meeting %}
+                    <tr>
+                        <td class="label-cell">Meeting Place</td>
+                        <td class="value-cell" style="font-weight: 700; color: #0284c7;">{{ doc.place_of_meeting }}</td>
+                    </tr>
+                    {% endif %}
                     <tr>
                         <td class="label-cell">Purpose</td>
                         <td class="value-cell">{{ final_purpose }}</td>

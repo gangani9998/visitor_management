@@ -13,6 +13,7 @@
   "visitor_name",
   "phone",
   "person_to_meet",
+  "place_of_meeting",
   "number_of_persons",
   "cb_details",
   "visitor_type",
@@ -75,6 +76,14 @@
    "in_list_view": 1,
    "label": "Person to Meet",
    "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Management (Office)",
+   "fieldname": "place_of_meeting",
+   "fieldtype": "Select",
+   "label": "Place of Meeting",
+   "options": "Management (Office)\nProduction (Manufacturing Facility)\nWarehouse / Stores\nReception / Admin\nOther",
    "reqd": 1
   },
   {

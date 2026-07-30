@@ -259,6 +259,10 @@
                 <div class="val" id="res-meeting"></div>
             </div>
             <div class="info-item">
+                <div class="lbl">Meeting Place</div>
+                <div class="val" id="res-place" style="color: #0284c7; font-weight: 700;"></div>
+            </div>
+            <div class="info-item">
                 <div class="lbl">Purpose</div>
                 <div class="val" id="res-purpose"></div>
             </div>
@@ -372,6 +376,7 @@ function renderResult(data) {
 
     document.getElementById("res-name").textContent    = data.visitor_name || "—";
     document.getElementById("res-meeting").textContent = data.person_to_meet || "—";
+    document.getElementById("res-place").textContent   = data.place_of_meeting || "—";
     document.getElementById("res-purpose").textContent = data.purpose_of_visit || "—";
     document.getElementById("res-persons").textContent = data.number_of_persons || 1;
     document.getElementById("res-passcode").textContent = currentPassCode;

@@ -10,6 +10,14 @@ frappe.ui.form.on("Visitor Log", {
 		}
 	},
     refresh: function(frm) {
+        if (!frm.is_new() && frm.doc.status === "Checked Out" && frm.doc.entry_type === "Single Entry") {
+            frm.set_read_only();
+            frm.disable_save();
+            frm.set_intro(__('This Single Entry pass is Checked Out and has expired. It is now Read-Only.'), 'red');
+            return;
+        } else {
+            frm.set_intro('');
+        }
         if (frm.is_new()) {
             frm.set_df_property('status', 'options', ['Expected', 'Checked In']);
         } else {

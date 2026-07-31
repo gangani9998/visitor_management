@@ -37,9 +37,9 @@ class VisitorLog(Document):
 		if not self.is_new():
 			old_doc = self.get_doc_before_save()
 			if old_doc and self.entry_type == "Single Entry":
-				# Prevent bypassing expiration via Expected or any other status once Checked Out
-				if old_doc.status == "Checked Out" and self.status != "Checked Out":
-					frappe.throw("Error: Code already used. Single Entry pass is expired.")
+				# Once a Single Entry pass is Checked Out, make it strictly read-only against any edits or status changes
+				if old_doc.status == "Checked Out":
+					frappe.throw("Error: This Single Entry pass has been Checked Out and is read-only.")
 				# Also prevent checking in if a check_out_time was already stamped
 				if self.status == "Checked In" and (self.check_out_time or old_doc.check_out_time):
 					frappe.throw("Error: Code already used. Single Entry pass is expired.")
